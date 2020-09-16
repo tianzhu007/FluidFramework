@@ -69,6 +69,10 @@ parameters:
 - name: tagName
   type: string
 
+- name: secrets
+  type: object
+  default:
+
 trigger: none
 
 variables:
@@ -112,6 +116,7 @@ stages:
                 Test=${{ parameters.taskTest }}
                 BuildDoc=${{ parameters.taskBuildDocs }}
                 TestCoverage=$(testCoverage)
+                Secrets=${{ parameters.secrets }}
 
               Computed variables:
                 shouldPublish=${{ variables.shouldPublish }}
