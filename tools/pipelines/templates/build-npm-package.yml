@@ -117,7 +117,7 @@ stages:
                 Test=${{ parameters.taskTest }}
                 BuildDoc=${{ parameters.taskBuildDocs }}
                 TestCoverage=$(testCoverage)
-                Secrets=${{ parameters.secrets }}
+                fluid__webpack__fluidHost=${{ parameters.secrets.fluid__webpack__fluidHost }}
 
               Computed variables:
                 shouldPublish=${{ variables.shouldPublish }}
