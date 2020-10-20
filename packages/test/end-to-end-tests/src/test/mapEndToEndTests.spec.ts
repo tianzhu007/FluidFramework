@@ -5,34 +5,25 @@
 
 import { strict as assert } from "assert";
 import { IFluidHandle } from "@fluidframework/core-interfaces";
-import { IFluidCodeDetails, ILoader } from "@fluidframework/container-definitions";
 import { Container } from "@fluidframework/container-loader";
-import { IUrlResolver } from "@fluidframework/driver-definitions";
-import { LocalResolver } from "@fluidframework/local-driver";
 import { ISharedMap, SharedMap } from "@fluidframework/map";
 import { MessageType } from "@fluidframework/protocol-definitions";
 import { requestFluidObject } from "@fluidframework/runtime-utils";
-import { ILocalDeltaConnectionServer, LocalDeltaConnectionServer } from "@fluidframework/server-local-server";
 import {
     ChannelFactoryRegistry,
-    createAndAttachContainer,
-    createLocalLoader,
     ITestFluidObject,
     OpProcessingController,
-    TestFluidObjectFactory,
 } from "@fluidframework/test-utils";
-import { compatTest, ICompatTestArgs } from "./compatUtils";
+import { generateTestWithCompat, ICompatLocalTestObjectProvider, ITestContainerConfig } from "./compatUtils";
 
-const documentId = "mapTest";
-const documentLoadUrl = `fluid-test://localhost/${documentId}`;
 const mapId = "mapKey";
 const registry: ChannelFactoryRegistry = [[mapId, SharedMap.getFactory()]];
-const codeDetails: IFluidCodeDetails = {
-    package: "sharedMapTestPackage",
-    config: {},
+const testContainerConfig: ITestContainerConfig = {
+    testFluidDataObject: true,
+    registry,
 };
 
-const tests = (args: ICompatTestArgs) => {
+const tests = (args: ICompatLocalTestObjectProvider) => {
     let opProcessingController: OpProcessingController;
     let dataObject1: ITestFluidObject;
     let sharedMap1: ISharedMap;
@@ -40,15 +31,15 @@ const tests = (args: ICompatTestArgs) => {
     let sharedMap3: ISharedMap;
 
     beforeEach(async () => {
-        const container1 = await args.makeTestContainer(registry) as Container;
+        const container1 = await args.makeTestContainer(testContainerConfig) as Container;
         dataObject1 = await requestFluidObject<ITestFluidObject>(container1, "default");
         sharedMap1 = await dataObject1.getSharedObject<SharedMap>(mapId);
 
-        const container2 = await args.loadTestContainer(registry) as Container;
+        const container2 = await args.loadTestContainer(testContainerConfig) as Container;
         const dataObject2 = await requestFluidObject<ITestFluidObject>(container2, "default");
         sharedMap2 = await dataObject2.getSharedObject<SharedMap>(mapId);
 
-        const container3 = await args.loadTestContainer(registry) as Container;
+        const container3 = await args.loadTestContainer(testContainerConfig) as Container;
         const dataObject3 = await requestFluidObject<ITestFluidObject>(container3, "default");
         sharedMap3 = await dataObject3.getSharedObject<SharedMap>(mapId);
 
@@ -313,35 +304,5 @@ const tests = (args: ICompatTestArgs) => {
 };
 
 describe("Map", () => {
-    const factory = new TestFluidObjectFactory(registry);
-    let deltaConnectionServer: ILocalDeltaConnectionServer;
-    let urlResolver: IUrlResolver;
-    const makeTestContainer = async () => {
-        const loader = createLocalLoader([[codeDetails, factory]], deltaConnectionServer, urlResolver);
-        return createAndAttachContainer(documentId, codeDetails, loader, urlResolver);
-    };
-    const loadTestContainer = async () => {
-        const loader: ILoader = createLocalLoader([[codeDetails, factory]], deltaConnectionServer, urlResolver);
-        return loader.resolve({ url: documentLoadUrl });
-    };
-
-    beforeEach(async () => {
-        deltaConnectionServer = LocalDeltaConnectionServer.create();
-        urlResolver = new LocalResolver();
-    });
-
-    tests({
-        makeTestContainer,
-        loadTestContainer,
-        get deltaConnectionServer() { return deltaConnectionServer; },
-        get urlResolver() { return urlResolver; },
-    });
-
-    afterEach(async () => {
-        await deltaConnectionServer.webSocketServer.close();
-    });
-
-    describe("compatibility", () => {
-        compatTest(tests, { testFluidDataObject: true });
-    });
+    generateTestWithCompat(tests);
 });

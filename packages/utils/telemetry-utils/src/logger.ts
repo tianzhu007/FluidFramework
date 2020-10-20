@@ -13,7 +13,7 @@ import {
     ITelemetryProperties,
     TelemetryEventPropertyType,
 } from "@fluidframework/common-definitions";
-import { BaseTelemetryNullLogger, performanceNow } from "@fluidframework/common-utils";
+import { BaseTelemetryNullLogger, performance } from "@fluidframework/common-utils";
 import { debug as registerDebug, IDebugger } from "debug";
 
 export interface ITelemetryPropertyGetters {
@@ -332,7 +332,8 @@ export class DebugLogger extends TelemetryLogger {
     public static create(
         namespace: string,
         properties?: ITelemetryProperties,
-        propertyGetters?: ITelemetryPropertyGetters): TelemetryLogger {
+        propertyGetters?: ITelemetryPropertyGetters,
+    ): TelemetryLogger {
         // Setup base logger upfront, such that host can disable it (if needed)
         const debug = registerDebug(namespace);
 
@@ -355,7 +356,8 @@ export class DebugLogger extends TelemetryLogger {
         namespace: string,
         baseLogger?: ITelemetryBaseLogger,
         properties?: ITelemetryProperties,
-        propertyGetters?: ITelemetryPropertyGetters): TelemetryLogger {
+        propertyGetters?: ITelemetryPropertyGetters,
+    ): TelemetryLogger {
         if (!baseLogger) {
             return DebugLogger.create(namespace, properties, propertyGetters);
         }
@@ -396,7 +398,7 @@ export class DebugLogger extends TelemetryLogger {
 
         let tick = "";
         if (event.category === "performance") {
-            tick = `tick=${TelemetryLogger.formatTick(performanceNow())}`;
+            tick = `tick=${TelemetryLogger.formatTick(performance.now())}`;
         }
 
         // Extract stack to put it last, but also to avoid escaping '\n' in it by JSON.stringify below
@@ -444,7 +446,7 @@ export class PerformanceEvent {
         const perfEvent = PerformanceEvent.start(logger, event);
         try {
             const ret = callback(perfEvent);
-            // Event might been cancelled or end was already reported
+            // Event might have been cancelled or ended in the callback
             if (perfEvent.event) {
                 perfEvent.end();
             }
@@ -463,7 +465,7 @@ export class PerformanceEvent {
         const perfEvent = PerformanceEvent.start(logger, event);
         try {
             const ret = await callback(perfEvent);
-            // Event might been cancelled or end was already reported
+            // Event might have been cancelled or ended in the callback
             if (perfEvent.event) {
                 perfEvent.end();
             }
@@ -475,13 +477,16 @@ export class PerformanceEvent {
     }
 
     private event?: ITelemetryGenericEvent;
-    private readonly startTime = performanceNow();
+    private readonly eventName: string;
+    private readonly startTime = performance.now();
     private startMark?: string;
 
     protected constructor(
         private readonly logger: ITelemetryLogger,
-        event: ITelemetryGenericEvent) {
+        event: ITelemetryGenericEvent,
+    ) {
         this.event = { ...event };
+        this.eventName = event.eventName;
         this.reportEvent("start");
 
         if (typeof window === "object" && window != null && window.performance) {
@@ -497,10 +502,10 @@ export class PerformanceEvent {
     public end(props?: ITelemetryProperties, eventNameSuffix = "end"): void {
         this.reportEvent(eventNameSuffix, props);
 
-        if (this.startMark) {
-            const endMark = `${this.event!.eventName}-${eventNameSuffix}`;
+        if (this.startMark && this.event) {
+            const endMark = `${this.event.eventName}-${eventNameSuffix}`;
             window.performance.mark(endMark);
-            window.performance.measure(`${this.event!.eventName}`, this.startMark, endMark);
+            window.performance.measure(`${this.event.eventName}`, this.startMark, endMark);
             this.startMark = undefined;
         }
 
@@ -514,18 +519,21 @@ export class PerformanceEvent {
 
     public reportEvent(eventNameSuffix: string, props?: ITelemetryProperties, error?: any): void {
         if (!this.event) {
-            this.logger.sendErrorEvent({
+            const errorEvent = {
                 eventName: "PerformanceEventAfterStop",
-                perfEventName: this.event!.eventName,
+                perfEventName: this.eventName,
                 eventNameSuffix,
-            });
+            };
+            // Include the error object if present to get a callstack, even though it
+            // doesn't really "belong" to this event (which is about telemetry health, not the perf event)
+            this.logger.sendErrorEvent(errorEvent, error);
             return;
         }
 
         const event: ITelemetryPerformanceEvent = { ...this.event, ...props };
         event.eventName = `${event.eventName}_${eventNameSuffix}`;
         if (eventNameSuffix !== "start") {
-            event.duration = performanceNow() - this.startTime;
+            event.duration = performance.now() - this.startTime;
         }
 
         this.logger.sendPerformanceEvent(event, error);
@@ -543,8 +551,8 @@ export class PerformanceEvent {
 export class CustomErrorWithProps extends Error {
     constructor(
         message: string,
-        props?: ITelemetryProperties)
-    {
+        props?: ITelemetryProperties,
+    ) {
         super(message);
         Object.assign(this, props);
     }

@@ -4,39 +4,29 @@
  */
 
 import { strict as assert } from "assert";
-import { IFluidCodeDetails, ILoader } from "@fluidframework/container-definitions";
 import { Container } from "@fluidframework/container-loader";
-import { IUrlResolver } from "@fluidframework/driver-definitions";
-import { LocalResolver } from "@fluidframework/local-driver";
 import { IInboundSignalMessage } from "@fluidframework/runtime-definitions";
 import { requestFluidObject } from "@fluidframework/runtime-utils";
-import { ILocalDeltaConnectionServer, LocalDeltaConnectionServer } from "@fluidframework/server-local-server";
 import {
-    createAndAttachContainer,
-    createLocalLoader,
     OpProcessingController,
     ITestFluidObject,
-    TestFluidObjectFactory,
 } from "@fluidframework/test-utils";
-import { compatTest, ICompatTestArgs } from "./compatUtils";
+import { generateTestWithCompat, ICompatLocalTestObjectProvider, ITestContainerConfig } from "./compatUtils";
 
-const documentId = "localSignalsTest";
-const documentLoadUrl = `fluid-test://localhost/${documentId}`;
-const codeDetails: IFluidCodeDetails = {
-    package: "localSignalsTestPackage",
-    config: {},
+const testContainerConfig: ITestContainerConfig = {
+    testFluidDataObject: true,
 };
 
-const tests = (args: ICompatTestArgs) => {
+const tests = (args: ICompatLocalTestObjectProvider) => {
     let dataObject1: ITestFluidObject;
     let dataObject2: ITestFluidObject;
     let opProcessingController: OpProcessingController;
 
     beforeEach(async () => {
-        const container1 = await args.makeTestContainer() as Container;
+        const container1 = await args.makeTestContainer(testContainerConfig) as Container;
         dataObject1 = await requestFluidObject<ITestFluidObject>(container1, "default");
 
-        const container2 = await args.loadTestContainer() as Container;
+        const container2 = await args.loadTestContainer(testContainerConfig) as Container;
         dataObject2 = await requestFluidObject<ITestFluidObject>(container2, "default");
 
         opProcessingController = new OpProcessingController(args.deltaConnectionServer);
@@ -152,35 +142,5 @@ const tests = (args: ICompatTestArgs) => {
 };
 
 describe("TestSignals", () => {
-    const factory = new TestFluidObjectFactory([]);
-    let deltaConnectionServer: ILocalDeltaConnectionServer;
-    let urlResolver: IUrlResolver;
-    const makeTestContainer = async () => {
-        const loader: ILoader = createLocalLoader([[codeDetails, factory]], deltaConnectionServer, urlResolver);
-        return createAndAttachContainer(documentId, codeDetails, loader, urlResolver);
-    };
-    const loadTestContainer = async () => {
-        const loader: ILoader = createLocalLoader([[codeDetails, factory]], deltaConnectionServer, urlResolver);
-        return loader.resolve({ url: documentLoadUrl });
-    };
-
-    beforeEach(async () => {
-        deltaConnectionServer = LocalDeltaConnectionServer.create();
-        urlResolver = new LocalResolver();
-    });
-
-    tests({
-        makeTestContainer,
-        loadTestContainer,
-        get deltaConnectionServer() { return deltaConnectionServer; },
-        get urlResolver() { return urlResolver; },
-    });
-
-    afterEach(async () => {
-        await deltaConnectionServer.webSocketServer.close();
-    });
-
-    describe("compatibility", () => {
-        compatTest(tests, { testFluidDataObject: true });
-    });
+    generateTestWithCompat(tests);
 });
