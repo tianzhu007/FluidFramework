@@ -1,0 +1,67 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "version": "1.0.0",
+    "title": "FRS API"
+  },
+  "paths": {
+    "/api/tenants/{id}": {
+      "get": {
+        "tags": [
+          "echo"
+        ],
+        "summary": "Gets a single tenant with given id.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success."
+          },
+          "400": {
+            "description": "Error."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "echo"
+        ],
+        "summary": "Deletes a tenant.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success."
+          },
+          "400": {
+            "description": "Error."
+          },
+          "500": {
+            "description": "FRS Admin email not provided by AAD under 'preferred_username'. Retry or contact frsdev@microsoft.com for assistance."
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://echo.westus2.fluidrelay.azure.com"
+    }
+  ]
+}
