@@ -6,6 +6,7 @@
 import { AsyncLocalStorage } from "async_hooks";
 import { Response } from "express";
 import * as jwt from "jsonwebtoken";
+import * as nconf from "nconf";
 import { ITokenClaims } from "@fluidframework/protocol-definitions";
 import { NetworkError } from "@fluidframework/server-services-client";
 import { ICache, ITenantService, RestGitService, ITenantCustomDataExternal } from "../services";
@@ -44,6 +45,7 @@ export function handleResponse<T>(
 }
 
 export async function createGitService(
+    config: nconf.Provider,
     tenantId: string,
     authorization: string,
     tenantService: ITenantService,
@@ -57,14 +59,16 @@ export async function createGitService(
     const writeToExternalStorage = !!customData?.externalStorageData;
     const storageName = customData?.storageName;
     const decoded = jwt.decode(token) as ITokenClaims;
-     const service = new RestGitService(
-         details.storage,
-         writeToExternalStorage,
-         tenantId,
-         decoded.documentId,
-         cache,
-         asyncLocalStorage,
-         storageName);
+    const storageUrl = config.get("storageUrl") as string | undefined;
+    const service = new RestGitService(
+        details.storage,
+        writeToExternalStorage,
+        tenantId,
+        decoded.documentId,
+        cache,
+        asyncLocalStorage,
+        storageName,
+        storageUrl);
 
     return service;
 }
