@@ -48,7 +48,8 @@ export class WholeSummaryDocumentStorageService implements IDocumentStorageServi
         protected readonly logger: ITelemetryLogger,
         public readonly policies: IDocumentStorageServicePolicies = {},
         private readonly blobCache: ICache<ArrayBufferLike> = new InMemoryCache(),
-        private readonly snapshotTreeCache: ICache<ISnapshotTreeVersion> = new InMemoryCache()) {
+        private readonly snapshotTreeCache: ICache<ISnapshotTreeVersion> = new InMemoryCache(),
+        protected readonly noCacheGitManager?: GitManager) {
         this.summaryUploadManager = new WholeSummaryUploadManager(manager);
     }
 
@@ -64,7 +65,7 @@ export class WholeSummaryDocumentStorageService implements IDocumentStorageServi
         // Fetch latest summary, cache it, and return its id.
         if (this.firstVersionsCall && count === 1) {
             this.firstVersionsCall = false;
-            const { id: _id, snapshotTree } = await this.fetchAndCacheSnapshotTree(latestSnapshotId);
+            const { id: _id, snapshotTree } = await this.fetchAndCacheSnapshotTree(latestSnapshotId, true);
             return [{
                 id: _id,
                 treeId: snapshotTree.id!,
@@ -170,7 +171,7 @@ export class WholeSummaryDocumentStorageService implements IDocumentStorageServi
         );
     }
 
-    private async fetchAndCacheSnapshotTree(versionId: string): Promise<ISnapshotTreeVersion> {
+    private async fetchAndCacheSnapshotTree(versionId: string, disableCache?: boolean): Promise<ISnapshotTreeVersion> {
         const cachedSnapshotTreeVersion = await this.snapshotTreeCache.get(versionId);
         if (cachedSnapshotTreeVersion !== undefined) {
             return { id: cachedSnapshotTreeVersion.id, snapshotTree: cachedSnapshotTreeVersion.snapshotTree };
@@ -183,7 +184,9 @@ export class WholeSummaryDocumentStorageService implements IDocumentStorageServi
                 treeId: versionId,
             },
             async (event) => {
-                const response = await this.manager.getSummary(versionId);
+                const response = disableCache && this.noCacheGitManager !== undefined ?
+                await this.noCacheGitManager.getSummary(versionId) :
+                await this.manager.getSummary(versionId);
                 event.end({
                     size: response.trees[0]?.entries.length,
                 });
