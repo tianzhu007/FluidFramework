@@ -21,6 +21,10 @@
 		"endpoint": ""
 	},
 	"throttling": {
+		"tenantGroup1": {
+			"getSummary": "disabled",
+			"createSummary": "disabled"
+		},
 		"restCallsPerTenant": {
 			"generalRestCall": {
 				"maxPerMs": 1000000,

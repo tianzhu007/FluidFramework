@@ -37,6 +37,9 @@ export const Constants = Object.freeze({
 	createSummaryThrottleIdPrefix: "createSummary",
 	getSummaryThrottleIdPrefix: "getSummary",
 	generalRestCallThrottleIdPrefix: "generalRestCall",
+    throttleGeneralTenant: "generalTenant",
+	throttleGeneralCluster: "generalCluster",
+	throttleTenantGroup1: "tenantGroup1",
 });
 
 export function getTokenLifetimeInSec(token: string): number {
