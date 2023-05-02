@@ -39,8 +39,8 @@ export interface IRoutes {
 export function create(
 	config: nconf.Provider,
 	tenantService: ITenantService,
-	restTenantThrottlers: Map<string, IThrottler>,
-	restClusterThrottlers: Map<string, IThrottler>,
+	tenantThrottlersMap: Map<string, string>,
+	throttlersMap: Map<string, Map<string, IThrottler>>,
 	cache?: ICache,
 	asyncLocalStorage?: AsyncLocalStorage<string>,
 	tokenRevocationManager?: ITokenRevocationManager,
@@ -50,7 +50,7 @@ export function create(
 			blobs: blobs.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -58,7 +58,7 @@ export function create(
 			commits: commits.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -66,7 +66,7 @@ export function create(
 			refs: refs.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -74,7 +74,7 @@ export function create(
 			tags: tags.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -82,7 +82,7 @@ export function create(
 			trees: trees.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -92,7 +92,7 @@ export function create(
 			commits: repositoryCommits.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -100,7 +100,7 @@ export function create(
 			contents: contents.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -108,7 +108,7 @@ export function create(
 			headers: headers.create(
 				config,
 				tenantService,
-				restTenantThrottlers,
+				throttlersMap,
 				cache,
 				asyncLocalStorage,
 				tokenRevocationManager,
@@ -117,8 +117,8 @@ export function create(
 		summaries: summaries.create(
 			config,
 			tenantService,
-			restTenantThrottlers,
-			restClusterThrottlers,
+			tenantThrottlersMap,
+			throttlersMap,
 			cache,
 			asyncLocalStorage,
 			tokenRevocationManager,

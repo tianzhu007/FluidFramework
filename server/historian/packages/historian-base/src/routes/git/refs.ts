@@ -25,7 +25,7 @@ import { Constants } from "../../utils";
 export function create(
 	config: nconf.Provider,
 	tenantService: ITenantService,
-	restTenantThrottlers: Map<string, IThrottler>,
+	throttlersMap: Map<string, Map<string, IThrottler>>,
 	cache?: ICache,
 	asyncLocalStorage?: AsyncLocalStorage<string>,
 	tokenRevocationManager?: ITokenRevocationManager,
@@ -36,9 +36,9 @@ export function create(
 		throttleIdPrefix: (req) => getParam(req.params, "tenantId"),
 		throttleIdSuffix: Constants.historianRestThrottleIdSuffix,
 	};
-	const restTenantGeneralThrottler = restTenantThrottlers.get(
-		Constants.generalRestCallThrottleIdPrefix,
-	);
+	const restTenantGeneralThrottler = throttlersMap
+		.get(Constants.throttleGeneralTenant)
+		.get(Constants.generalRestCallThrottleIdPrefix);
 
 	async function getRefs(tenantId: string, authorization: string): Promise<git.IRef[]> {
 		const service = await utils.createGitService({

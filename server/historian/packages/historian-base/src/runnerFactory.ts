@@ -20,8 +20,8 @@ export class HistorianResources implements core.IResources {
 		public readonly config: Provider,
 		public readonly port: string | number,
 		public readonly riddler: historianServices.ITenantService,
-		public readonly restTenantThrottlers: Map<string, core.IThrottler>,
-		public readonly restClusterThrottlers: Map<string, core.IThrottler>,
+		public readonly tenantThrottlersMap: Map<string, string>,
+		public readonly throttlersMap: Map<string, Map<string, core.IThrottler>>,
 		public readonly cache?: historianServices.RedisCache,
 		public readonly asyncLocalStorage?: AsyncLocalStorage<string>,
 		public tokenRevocationManager?: core.ITokenRevocationManager,
@@ -114,7 +114,7 @@ export class HistorianResourcesFactory implements core.IResourcesFactory<Histori
 			);
 		};
 
-        const restApiTenanGroup1CreateSummaryThrottleConfig = utils.getThrottleConfig(
+		const restApiTenanGroup1CreateSummaryThrottleConfig = utils.getThrottleConfig(
 			config.get("throttling:tenantGroup1:createSummary"),
 		);
 		const restApiTenantGroup1GetSummaryThrottleConfig = utils.getThrottleConfig(
@@ -172,7 +172,7 @@ export class HistorianResourcesFactory implements core.IResourcesFactory<Histori
 		const restApiClusterCreateSummaryThrottleConfig = utils.getThrottleConfig(
 			config.get("throttling:restCallsPerCluster:createSummary"),
 		);
-        const throttlerCreateSummaryPerCluster = configureThrottler(
+		const throttlerCreateSummaryPerCluster = configureThrottler(
 			restApiClusterCreateSummaryThrottleConfig,
 		);
 		const restApiClusterGetSummaryThrottleConfig = utils.getThrottleConfig(
@@ -192,11 +192,14 @@ export class HistorianResourcesFactory implements core.IResourcesFactory<Histori
 			throttlerGetSummaryPerCluster,
 		);
 
-
-        const throttlersMap = new Map<string, Map<string, core.IThrottler>>();
-        throttlersMap.set(Constants.throttleGeneralTenant, restTenantThrottlers);
+		const throttlersMap = new Map<string, Map<string, core.IThrottler>>();
+		throttlersMap.set(Constants.throttleGeneralTenant, restTenantThrottlers);
 		throttlersMap.set(Constants.throttleGeneralCluster, restClusterThrottlers);
 		throttlersMap.set(Constants.throttleTenantGroup1, restGroup1Throttlers);
+
+		const tenantThrottlersMap = new Map<string, string>();
+		const tenantGroup1 = config.get("alfred:throttlingGroup:tenantGroup1") as string[];
+		tenantGroup1.forEach((t) => tenantThrottlersMap.set(t, "tenantGroup1"));
 
 		const port = normalizePort(process.env.PORT || "3000");
 
@@ -204,8 +207,8 @@ export class HistorianResourcesFactory implements core.IResourcesFactory<Histori
 			config,
 			port,
 			riddler,
-			restTenantThrottlers,
-			restClusterThrottlers,
+			tenantThrottlersMap,
+			throttlersMap,
 			gitCache,
 			asyncLocalStorage,
 		);
@@ -219,8 +222,8 @@ export class HistorianRunnerFactory implements core.IRunnerFactory<HistorianReso
 			resources.config,
 			resources.port,
 			resources.riddler,
-			resources.restTenantThrottlers,
-			resources.restClusterThrottlers,
+			resources.tenantThrottlersMap,
+			resources.throttlersMap,
 			resources.cache,
 			resources.asyncLocalStorage,
 			resources.tokenRevocationManager,

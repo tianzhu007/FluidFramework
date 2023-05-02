@@ -25,8 +25,8 @@ import * as utils from "./utils";
 export function create(
 	config: nconf.Provider,
 	tenantService: ITenantService,
-	restTenantThrottlers: Map<string, IThrottler>,
-	restClusterThrottlers: Map<string, IThrottler>,
+	tenantThrottlersMap: Map<string, string>,
+	throttlersMap: Map<string, Map<string, IThrottler>>,
 	cache?: ICache,
 	asyncLocalStorage?: AsyncLocalStorage<string>,
 	tokenRevocationManager?: ITokenRevocationManager,
@@ -37,45 +37,48 @@ export function create(
 		throttleIdPrefix: (req) => getParam(req.params, "tenantId"),
 		throttleIdSuffix: Constants.historianRestThrottleIdSuffix,
 	};
-	const restTenantGeneralThrottler = restTenantThrottlers.get(
-		Constants.generalRestCallThrottleIdPrefix,
-	);
+	const restTenantGeneralThrottler = throttlersMap
+		.get(Constants.throttleGeneralTenant)
+		.get(Constants.generalRestCallThrottleIdPrefix);
 
-	// Throttling logic for creating summary to provide per-tenant rate-limiting at the HTTP route level
-	const createSummaryPerTenantThrottleOptions: Partial<IThrottleMiddlewareOptions> = {
-		throttleIdPrefix: (req) => getParam(req.params, "tenantId"),
-		throttleIdSuffix: Constants.createSummaryThrottleIdPrefix,
+	// Todo: delete it and use the function in throttlerMiddleware.ts
+	const tenantThrottle = (throttleApi: string) => {
+		return (req, rest, next) => {
+			const tenantId = getParam(req.params, "tenantId");
+			const tenantGroup: string | undefined = tenantId
+				? tenantThrottlersMap?.get(tenantId)
+				: undefined;
+			const throttleOptions: Partial<IThrottleMiddlewareOptions> = {
+				throttleIdPrefix: tenantGroup ? `${tenantId}_${tenantGroup}` : tenantId,
+				throttleIdSuffix: throttleApi,
+			};
+			const throttler = tenantGroup
+				? throttlersMap.get(tenantGroup)?.get(throttleApi)
+				: throttlersMap.get(Constants.throttleGeneralTenant)?.get(throttleApi);
+			if (throttler) {
+				return throttle(throttler, winston, throttleOptions)(req, rest, next);
+			}
+			next();
+		};
 	};
-	const restTenantCreateSummaryThrottler = restTenantThrottlers.get(
-		Constants.createSummaryThrottleIdPrefix,
-	);
-
-	// Throttling logic for getting summary to provide per-tenant rate-limiting at the HTTP route level
-	const getSummaryPerTenantThrottleOptions: Partial<IThrottleMiddlewareOptions> = {
-		throttleIdPrefix: (req) => getParam(req.params, "tenantId"),
-		throttleIdSuffix: Constants.getSummaryThrottleIdPrefix,
-	};
-	const restTenantGetSummaryThrottler = restTenantThrottlers.get(
-		Constants.getSummaryThrottleIdPrefix,
-	);
 
 	// Throttling logic for creating summary to provide per-cluster rate-limiting at the HTTP route level
 	const createSummaryPerClusterThrottleOptions: Partial<IThrottleMiddlewareOptions> = {
 		throttleIdPrefix: Constants.createSummaryThrottleIdPrefix,
 		throttleIdSuffix: Constants.historianRestThrottleIdSuffix,
 	};
-	const restClusterCreateSummaryThrottler = restClusterThrottlers.get(
-		Constants.createSummaryThrottleIdPrefix,
-	);
+	const restClusterCreateSummaryThrottler = throttlersMap
+		.get(Constants.throttleGeneralCluster)
+		.get(Constants.createSummaryThrottleIdPrefix);
 
 	// Throttling logic for getting summary to provide per-cluster rate-limiting at the HTTP route level
 	const getSummaryPerClusterThrottleOptions: Partial<IThrottleMiddlewareOptions> = {
 		throttleIdPrefix: Constants.getSummaryThrottleIdPrefix,
 		throttleIdSuffix: Constants.historianRestThrottleIdSuffix,
 	};
-	const restClusterGetSummaryThrottler = restTenantThrottlers.get(
-		Constants.getSummaryThrottleIdPrefix,
-	);
+	const restClusterGetSummaryThrottler = throttlersMap
+		.get(Constants.throttleGeneralCluster)
+		.get(Constants.getSummaryThrottleIdPrefix);
 
 	async function getSummary(
 		tenantId: string,
@@ -140,7 +143,7 @@ export function create(
 	router.get(
 		"/repos/:ignored?/:tenantId/git/summaries/:sha",
 		throttle(restClusterGetSummaryThrottler, winston, getSummaryPerClusterThrottleOptions),
-		throttle(restTenantGetSummaryThrottler, winston, getSummaryPerTenantThrottleOptions),
+		tenantThrottle(Constants.getSummaryThrottleIdPrefix),
 		utils.verifyTokenNotRevoked(tokenRevocationManager),
 		(request, response, next) => {
 			const useCache = !("disableCache" in request.query);
@@ -167,7 +170,7 @@ export function create(
 			winston,
 			createSummaryPerClusterThrottleOptions,
 		),
-		throttle(restTenantCreateSummaryThrottler, winston, createSummaryPerTenantThrottleOptions),
+		tenantThrottle(Constants.createSummaryThrottleIdPrefix),
 		utils.verifyTokenNotRevoked(tokenRevocationManager),
 		(request, response, next) => {
 			// request.query type is { [string]: string } but it's actually { [string]: any }

@@ -25,8 +25,8 @@ import { getDocumentIdFromRequest, getTenantIdFromRequest } from "./utils";
 export function create(
 	config: nconf.Provider,
 	tenantService: ITenantService,
-	restTenantThrottlers: Map<string, IThrottler>,
-	restClusterThrottlers: Map<string, IThrottler>,
+	tenantThrottlersMap: Map<string, string>,
+	throttlersMap: Map<string, Map<string, IThrottler>>,
 	cache?: ICache,
 	asyncLocalStorage?: AsyncLocalStorage<string>,
 	tokenRevocationManager?: ITokenRevocationManager,
@@ -76,8 +76,8 @@ export function create(
 	const apiRoutes = routes.create(
 		config,
 		tenantService,
-		restTenantThrottlers,
-		restClusterThrottlers,
+		tenantThrottlersMap,
+		throttlersMap,
 		cache,
 		asyncLocalStorage,
 		tokenRevocationManager,

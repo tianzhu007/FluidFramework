@@ -90,17 +90,35 @@ describe("routes", () => {
 
 				const clusterThrottler1 = new TestThrottler(limit);
 				const clusterThrottler2 = new TestThrottler(limit);
-
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -198,13 +216,32 @@ describe("routes", () => {
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -316,13 +353,32 @@ describe("routes", () => {
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -423,12 +479,32 @@ describe("routes", () => {
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
+
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -492,12 +568,31 @@ describe("routes", () => {
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -553,12 +648,31 @@ describe("routes", () => {
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -613,12 +727,31 @@ describe("routes", () => {
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -695,18 +828,37 @@ describe("routes", () => {
 				tenantThrottlers.set(Constants.createSummaryThrottleIdPrefix, tenantThrottler2);
 				tenantThrottlers.set(Constants.getSummaryThrottleIdPrefix, tenantThrottler3);
 
-				const clusterThrottler1 = new TestThrottler(maxThrottlerLimit);
-				const clusterThrottler2 = new TestThrottler(maxThrottlerLimit);
+				const clusterThrottler1 = new TestThrottler(limit);
+				const clusterThrottler2 = new TestThrottler(limit);
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
 
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
+
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -787,18 +939,37 @@ describe("routes", () => {
 				tenantThrottlers.set(Constants.createSummaryThrottleIdPrefix, tenantThrottler2);
 				tenantThrottlers.set(Constants.getSummaryThrottleIdPrefix, tenantThrottler3);
 
-				const clusterThrottler1 = new TestThrottler(maxThrottlerLimit);
-				const clusterThrottler2 = new TestThrottler(maxThrottlerLimit);
+				const clusterThrottler1 = new TestThrottler(limit);
+				const clusterThrottler2 = new TestThrottler(limit);
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
 
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
+
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -893,18 +1064,36 @@ describe("routes", () => {
 				tenantThrottlers.set(Constants.createSummaryThrottleIdPrefix, tenantThrottler2);
 				tenantThrottlers.set(Constants.getSummaryThrottleIdPrefix, tenantThrottler3);
 
-				const clusterThrottler1 = new TestThrottler(maxThrottlerLimit);
-				const clusterThrottler2 = new TestThrottler(maxThrottlerLimit);
+				const clusterThrottler1 = new TestThrottler(limit);
+				const clusterThrottler2 = new TestThrottler(limit);
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
 
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -980,18 +1169,37 @@ describe("routes", () => {
 				tenantThrottlers.set(Constants.createSummaryThrottleIdPrefix, tenantThrottler2);
 				tenantThrottlers.set(Constants.getSummaryThrottleIdPrefix, tenantThrottler3);
 
-				const clusterThrottler1 = new TestThrottler(maxThrottlerLimit);
-				const clusterThrottler2 = new TestThrottler(maxThrottlerLimit);
+				const clusterThrottler1 = new TestThrottler(limit);
+				const clusterThrottler2 = new TestThrottler(limit);
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
 
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
+
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -1041,18 +1249,36 @@ describe("routes", () => {
 				tenantThrottlers.set(Constants.createSummaryThrottleIdPrefix, tenantThrottler2);
 				tenantThrottlers.set(Constants.getSummaryThrottleIdPrefix, tenantThrottler3);
 
-				const clusterThrottler1 = new TestThrottler(maxThrottlerLimit);
-				const clusterThrottler2 = new TestThrottler(maxThrottlerLimit);
+				const clusterThrottler1 = new TestThrottler(limit);
+				const clusterThrottler2 = new TestThrottler(limit);
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
 
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -1094,18 +1320,37 @@ describe("routes", () => {
 				tenantThrottlers.set(Constants.createSummaryThrottleIdPrefix, tenantThrottler2);
 				tenantThrottlers.set(Constants.getSummaryThrottleIdPrefix, tenantThrottler3);
 
-				const clusterThrottler1 = new TestThrottler(maxThrottlerLimit);
-				const clusterThrottler2 = new TestThrottler(maxThrottlerLimit);
+				const clusterThrottler1 = new TestThrottler(limit);
+				const clusterThrottler2 = new TestThrottler(limit);
 				const clusterThrottlers = new Map<string, TestThrottler>();
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
+
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
 
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
@@ -1156,12 +1401,31 @@ describe("routes", () => {
 				clusterThrottlers.set(Constants.createSummaryThrottleIdPrefix, clusterThrottler1);
 				clusterThrottlers.set(Constants.getSummaryThrottleIdPrefix, clusterThrottler2);
 
+				const tenantGruop1Throttler1 = new TestThrottler(limit);
+				const tenantGruop1Throttler2 = new TestThrottler(limit);
+				const tenantGruop1Throttlers = new Map<string, TestThrottler>();
+				tenantGruop1Throttlers.set(
+					Constants.createSummaryThrottleIdPrefix,
+					tenantGruop1Throttler1,
+				);
+				tenantGruop1Throttlers.set(
+					Constants.getSummaryThrottleIdPrefix,
+					tenantGruop1Throttler2,
+				);
 				const asyncLocalStorage = new AsyncLocalStorage<string>();
+
+				const throttlersMap = new Map<string, Map<string, TestThrottler>>();
+				throttlersMap.set(Constants.throttleGeneralTenant, tenantThrottlers);
+				throttlersMap.set(Constants.throttleGeneralCluster, clusterThrottlers);
+				throttlersMap.set(Constants.throttleTenantGroup1, tenantGruop1Throttlers);
+
+				const tenantThrottlersMap = new Map<string, string>();
+
 				app = historianApp.create(
 					defaultProvider,
 					defaultTenantService,
-					tenantThrottlers,
-					clusterThrottlers,
+					tenantThrottlersMap,
+					throttlersMap,
 					defaultCache,
 					asyncLocalStorage,
 				);
